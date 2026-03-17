@@ -19,7 +19,7 @@ website:
         text: Engagement & Community
     right:
       - icon: github
-        href: https://github.com/xiuqili-xl/UCSB-Library-OSSSI
+        href: https://github.com/UCSB-Library-Research-Data-Services/Open-Science-Inventory
     background: primary
     foreground: light       # for contrast
 

@@ -1,6 +1,5 @@
 project:
   type: website
-  output-dir: docs
   resources:
     - "images/static-png/*.png"
     - "data_processed/label_angles.csv"

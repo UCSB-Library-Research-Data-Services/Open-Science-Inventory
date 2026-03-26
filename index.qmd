@@ -27,7 +27,7 @@ As part of the inventory process, **a mapping of relationships** among offerings
 <script type="module">
 
   const IMAGE_DISPLAY_WIDTH = 1000; // pixels
-  const IMAGE_PATH = "images/static-png";
+  const IMAGE_PATH = "images/static";
   const UNHIGHLIGHTED_IMAGE_PATH = `${IMAGE_PATH}/00-no-highlight.jpg`;
   const CSV_PATH = "data_processed/label_angles.csv";
 

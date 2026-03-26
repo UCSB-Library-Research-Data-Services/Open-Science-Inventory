@@ -1,7 +1,7 @@
 project:
   type: website
   resources:
-    - "images/static-png/*.jpg"
+    - "images/static/*.jpg"
     - "data_processed/label_angles.csv"
 
 website:

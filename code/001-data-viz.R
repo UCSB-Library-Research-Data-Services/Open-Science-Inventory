@@ -237,10 +237,10 @@ legend(
   title.font = 2      # bold title
 )
 
-dev.copy(png, "images/static-png/00-no-highlight.png", 
+dev.copy(png, "images/static/00-no-highlight.png",
          width = 5, height = 5, units = "in", res = 600)
 dev.off()
-dev.copy(jpeg, "images/static-png/00-no-highlight.jpg", 
+dev.copy(jpeg, "images/static/00-no-highlight.jpg",
          width = 5, height = 5, units = "in", res = 600)
 dev.off()
 
@@ -269,16 +269,16 @@ for(id in 1:nrow(list_coded)){
   )
   
   # Export PNGs for building the GIF
-  dev.copy(png, paste0("images/static-png/", sprintf("%02d", id), ".png"),
+  dev.copy(png, paste0("images/static/", sprintf("%02d", id), ".png"),
            width = 5, height = 5, units = "in", res = 600)
   dev.off()
   # Export JPEGs for the website (half the size of the PNGs)
-  dev.copy(jpeg, paste0("images/static-png/", sprintf("%02d", id), ".jpg"),
+  dev.copy(jpeg, paste0("images/static/", sprintf("%02d", id), ".jpg"),
            width = 5, height = 5, units = "in", res = 600)
   dev.off()
   writeLines(
     paste(
-      "<link rel=\"preload\" href=\"images/static-png/",
+      "<link rel=\"preload\" href=\"images/static/",
       sprintf("%02d", id),
       ".jpg\" as=\"image\"/>",
       sep=""
@@ -291,7 +291,7 @@ close(preload_link_file)
 
 # Create gif from png ----
 library(gifski)
-png_files <- list.files("images/static-png/", 
+png_files <- list.files("images/static/",
                         pattern = ".*png$", full.names = TRUE)
 
 png_files_selected <- png_files[c(0, 1:4, 6:7, 8:14, 15:31, 45:55, 32:44) + 1]

@@ -1,7 +1,7 @@
 project:
   type: website
   resources:
-    - "images/static-png/*.png"
+    - "images/static-png/*.jpg"
     - "data_processed/label_angles.csv"
 
 website:
@@ -30,3 +30,4 @@ format:
     toc: true
     toc-location: right
     toc-expand: true
+    include-in-header: images/image-preload-links.txt

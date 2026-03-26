@@ -28,7 +28,7 @@ As part of the inventory process, **a mapping of relationships** among offerings
 
   const IMAGE_DISPLAY_WIDTH = 1000; // pixels
   const IMAGE_PATH = "images/static-png";
-  const UNHIGHLIGHTED_IMAGE_PATH = `${IMAGE_PATH}/00-no-highlight.png`;
+  const UNHIGHLIGHTED_IMAGE_PATH = `${IMAGE_PATH}/00-no-highlight.jpg`;
   const CSV_PATH = "data_processed/label_angles.csv";
 
   // Assumption: commas don't appear in label names, so no need for full CSV
@@ -77,7 +77,7 @@ As part of the inventory process, **a mapping of relationships** among offerings
       item => (item["Start.Degree"] <= angle && angle <= item["End.Degree"])
     );
     if (item !== undefined) {
-      img.src = `${IMAGE_PATH}/${String(item["Viz.ID"]).padStart(2, "0")}.png`;
+      img.src = `${IMAGE_PATH}/${String(item["Viz.ID"]).padStart(2, "0")}.jpg`;
     } else {
       img.src = UNHIGHLIGHTED_IMAGE_PATH;
     }

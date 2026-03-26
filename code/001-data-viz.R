@@ -240,10 +240,14 @@ legend(
 dev.copy(png, "images/static-png/00-no-highlight.png", 
          width = 5, height = 5, units = "in", res = 600)
 dev.off()
+dev.copy(jpeg, "images/static-png/00-no-highlight.jpg", 
+         width = 5, height = 5, units = "in", res = 600)
+dev.off()
 
 
 
 # Chord diagram | Run loop and export visuals ----
+preload_link_file <- file("images/image-preload-links.txt", "wt")
 for(id in 1:nrow(list_coded)){
   # create visuals with highlight
   chord_diagram(highlight_id = id)
@@ -264,13 +268,25 @@ for(id in 1:nrow(list_coded)){
     title.font = 2      # bold title
   )
   
-  # export
+  # Export PNGs for building the GIF
   dev.copy(png, paste0("images/static-png/", sprintf("%02d", id), ".png"),
            width = 5, height = 5, units = "in", res = 600)
-  
   dev.off()
+  # Export JPEGs for the website (half the size of the PNGs)
+  dev.copy(jpeg, paste0("images/static-png/", sprintf("%02d", id), ".jpg"),
+           width = 5, height = 5, units = "in", res = 600)
+  dev.off()
+  writeLines(
+    paste(
+      "<link rel=\"preload\" href=\"images/static-png/",
+      sprintf("%02d", id),
+      ".jpg\" as=\"image\"/>",
+      sep=""
+    ),
+    preload_link_file
+  )
 }
-
+close(preload_link_file)
 
 
 # Create gif from png ----

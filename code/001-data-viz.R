@@ -1,3 +1,17 @@
+# ==========================================================
+# GOAL: Analysis and visualization of OSSSI project data
+# OUTLINE:
+#   1. Read the inventory spreadsheet
+#   2. Derive relationships among items, providers, services, 
+#      and open science domains
+#   3. Generate the chord diagram visualizations
+#   4. Export static image assets (i.e., PNG and JPG)
+#   5. Create the animated GIF preview
+#   6. Compute and export label-angle metadata
+# ==========================================================
+
+
+
 # Load library ----
 library(tidyverse)
 library(readxl)
@@ -105,7 +119,7 @@ pairs <- rbind(pairs_domain, pairs_provider, pairs_service) %>%
 
 
 
-# Cord diagram | Define categories + colors ---- 
+# Chord diagram | Define categories + colors ---- 
 xlim_df <- inventory %>%
   group_by(Category) %>%
   summarize(min = min(Viz.ID) - 1.6, 
@@ -134,7 +148,7 @@ list_coded <- inventory %>%
 
 
 
-# Cord diagram | Define function ----
+# Chord diagram | Define function ----
 chord_diagram <- function(highlight_id = 0){
   # initialize
   circos.clear()
@@ -220,7 +234,7 @@ chord_diagram(highlight_id = 28)
 chord_diagram(highlight_id = 45)
 
 
-# Cord diagram | Export visual w/o highlights ---- 
+# Chord diagram | Export visual w/o highlights ---- 
 chord_diagram()
 
 legend(x = "topleft", adj = c(-0.4, 1),

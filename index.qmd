@@ -122,7 +122,7 @@ The project team would like to thank colleagues who provided valuable feedback a
 ## Citation and Contact
 
 :::{.callout-tip}
-## Please cite this work as
+## Please cite this project as
 
 Li X, Agrawal A, Budden A, Brun J, Erickson S, Jablonski J, Janée J, LaBonte K (2026). UCSB Library Open Science Services & Support Project.
 :::

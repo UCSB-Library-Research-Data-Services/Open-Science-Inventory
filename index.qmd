@@ -20,7 +20,7 @@ Between April and December 2025, the UCSB Library conducted an internal review o
 
 As part of the inventory process, **a mapping of relationships** among offerings, providers, and open science topical domains organically emerged. Rather than existing in isolation, these activities form a highly **interconnected network** of support across the library.
 
-**The diagram below is interactive!** Interact with it by clicking on items to highlight individual connections. Additional details about specific activities can be explored through the other tabs on this site. 
+**The diagram below is interactive!** Interact with it by clicking on items to highlight connections. Additional information about each item can be explored through the other tabs on this site. 
 
 <div id="diagram"></div>
 
@@ -127,8 +127,8 @@ The project team would like to thank colleagues who provided valuable feedback a
 Li X, Agrawal A, Budden A, Brun J, Erickson S, Jablonski J, Janée J, LaBonte K (2026). UCSB Library Open Science Services & Support Project.
 :::
 
-For questions related to this inventory project, please email xiuqili[AT]ucsb.edu. 
+For questions related to this inventory project, please email xiuqili [AT] ucsb.edu. 
 
-_** This inventory reflects open science programs, services, and activities at UCSB Library as of December 2025._
+___** This inventory reflects open science programs, services, and activities at UCSB Library as of December 2025.___
 
 

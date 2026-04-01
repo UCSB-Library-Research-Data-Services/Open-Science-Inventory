@@ -117,7 +117,7 @@ sector_colors <- c("OS Domains" = "#003660",
                    "Provider" = "#09847A", 
                    "Services & Programs" = "#6D7D33", 
                    "Instruction & Consultation" = "#C43424",
-                   "Engagement" = "#FEBC11")
+                   "Engagement & Community" = "#FEBC11")
 
 
 # status_palette <- c("green", "yellow", "orange")
@@ -222,14 +222,23 @@ chord_diagram(highlight_id = 45)
 
 # Cord diagram | Export visual w/o highlights ---- 
 chord_diagram()
+
+legend(x = "topleft", adj = c(-0.4, 1),
+       legend = "Click on items to explore!", 
+       cex = 0.72, 
+       text.col = "#EF5645", 
+       text.font = 2,
+       bty = "n"     # no box
+)
+
 legend(
-  x = "topright",
-  inset = c(0.21, 0.1),
+  x = "topleft",
+  inset = c(0.145, 0.08),
   legend = c("Active", "In development", "On hold"),
   col = status_palette,
   pch = 16,
   pt.cex = 0.6,
-  cex = 0.35,
+  cex = 0.4,
   bty = "o",          # draw box
   box.lwd = 0.2,      # thin border
   box.col = "grey55", # border color
@@ -240,6 +249,7 @@ legend(
 dev.copy(png, "images/static/00-no-highlight.png",
          width = 5, height = 5, units = "in", res = 600)
 dev.off()
+
 dev.copy(jpeg, "images/static/00-no-highlight.jpg",
          width = 5, height = 5, units = "in", res = 600)
 dev.off()
@@ -248,19 +258,28 @@ dev.off()
 
 # Chord diagram | Run loop and export visuals ----
 preload_link_file <- file("images/image-preload-links.txt", "wt")
+
 for(id in 1:nrow(list_coded)){
   # create visuals with highlight
   chord_diagram(highlight_id = id)
   
-  # add legend
+  # add legends -- should match the ones for no-highlight
+  legend(x = "topleft", adj = c(-0.4, 1),
+         legend = "Click on items to explore!", 
+         cex = 0.72, 
+         text.col = "#EF5645", 
+         text.font = 2,
+         bty = "n"     # no box
+  )
+  
   legend(
-    x = "topright",
-    inset = c(0.21, 0.1),
+    x = "topleft",
+    inset = c(0.145, 0.08),
     legend = c("Active", "In development", "On hold"),
     col = status_palette,
     pch = 16,
     pt.cex = 0.6,
-    cex = 0.35,
+    cex = 0.4,
     bty = "o",          # draw box
     box.lwd = 0.2,      # thin border
     box.col = "grey55", # border color
@@ -272,10 +291,12 @@ for(id in 1:nrow(list_coded)){
   dev.copy(png, paste0("images/static/", sprintf("%02d", id), ".png"),
            width = 5, height = 5, units = "in", res = 600)
   dev.off()
+  
   # Export JPEGs for the website (half the size of the PNGs)
   dev.copy(jpeg, paste0("images/static/", sprintf("%02d", id), ".jpg"),
            width = 5, height = 5, units = "in", res = 600)
   dev.off()
+  
   writeLines(
     paste(
       "<link rel=\"preload\" href=\"images/static/",
@@ -286,6 +307,7 @@ for(id in 1:nrow(list_coded)){
     preload_link_file
   )
 }
+
 close(preload_link_file)
 
 

@@ -49,6 +49,11 @@ A central feature of the site is an **interactive chord diagram** that highlight
 * Edit page content in the .qmd source files to reflect the updates
 
 
+## Citation
+
+Please cite this project if you use it in your work. You can find the citation metadata in the CITATION.cff file or by clicking "Cite this repository" in the GitHub sidebar.
+
+
 ## Disclosure
 
 The first version of this README file was drafted by Codex. The contributors have reviewed this file, made corrections, and expanded on details. 

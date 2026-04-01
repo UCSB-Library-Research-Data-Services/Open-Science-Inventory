@@ -2,8 +2,8 @@
 title: "UCSB Library Open Science Services & Support Inventory Project"
 toc: false
 citation: false
-copyright: "Copyright © 2026 by the authors"
-license: "Licensed under CC BY-NC 4.0"
+copyright: "Copyright © 2026 by the Regents of the University of California"
+license: "Licensed under BSD-3-Clause license"
 ---
 
 <br/>

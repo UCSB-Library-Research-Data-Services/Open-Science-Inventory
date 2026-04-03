@@ -8,3 +8,4 @@
 
 **/*.quarto_ipynb
 README_files/
+code/002-report-tally.R

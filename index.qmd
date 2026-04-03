@@ -124,7 +124,7 @@ The project team would like to thank colleagues who provided valuable feedback a
 :::{.callout-tip}
 ## Please cite this project as
 
-Li X, Agrawal A, Budden A, Brun J, Erickson S, Jablonski J, Janée J, LaBonte K (2026). UCSB Library Open Science Services & Support Project.
+Li X, Agrawal A, Brun J, Budden A, Erickson S, Jablonski J, Janée J, LaBonte K (2026). UCSB Library Open Science Services & Support Project.
 :::
 
 For questions related to this inventory project, please email xiuqili [AT] ucsb.edu. 

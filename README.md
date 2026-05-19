@@ -27,8 +27,10 @@ A central feature of the site is an **interactive chord diagram** that highlight
 ├── styles.css                                    # Custom site styling
 ├── code/
 │   └── 001-data-viz.R                            # Script to generate chord diagram
+│   └── 002-library-report.R                      # Script to test ideas for library report
 ├── data_raw/
 │   └── OS-Inventory-list-20260202.xlsx           # Source inventory spreadsheet
+│   └── OS-Inventory-list-20260518.xlsx           # Informal data update from 5/18
 ├── data_processed/
 │   └── label_angles.csv                          # Metadata for interactive image switching
 ├── images/

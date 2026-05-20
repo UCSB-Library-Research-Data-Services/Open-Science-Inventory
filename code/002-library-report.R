@@ -8,7 +8,7 @@
 # ==========================================================
 
 
-# Load library ----
+# Load libraries ----
 library(tidyverse)
 library(readxl)
 library(here)
@@ -149,6 +149,9 @@ domain_colors <- tibble(
 
 
 # Chord diagram | Generate visual ----
+## set up svg export
+svglite::svglite("images/library-report.svg", width = 13, height = 15)
+
 ## initialize
 circos.clear()
 circos.par(canvas.xlim = c(-1.1, 1.1), canvas.ylim = c(-1.1, 1.1),
@@ -161,7 +164,7 @@ circos.initialize(sectors = list_coded$Category,
 ## add items and label
 circos.labels(sectors = list_coded$Category, x = list_coded$Viz.ID, 
               labels = list_coded$Item, side = "outside",
-              cex = 0.3, padding = 0.0, connection_height = mm_h(0.3))
+              cex = 0.62, padding = 0.0, connection_height = mm_h(0.5))
 
 ## annotate status
 circos.track(sectors = list_coded$Category, ylim = c(0, 1),
@@ -170,7 +173,7 @@ circos.track(sectors = list_coded$Category, ylim = c(0, 1),
 circos.trackPoints(sectors = list_coded$Category, 
                    x = list_coded$Viz.ID, y = rep(0.5, times = nrow(list_coded)), 
                    col = list_coded$Status.Color, 
-                   pch = 16, cex = 0.6)
+                   pch = 20, cex = 2)
 
 ## annotate buckets
 circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
@@ -184,9 +187,9 @@ circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
                                      col = sector_colors[sector_name],
                                      border = NA)
                          # add text label
-                         circos.text(mean(xlim_cell), 0.5, labels = sector_name,
+                         circos.text(mean(xlim_cell), 0.45, labels = sector_name,
                                      facing = "bending.inside", niceFacing = TRUE,
-                                     cex = 0.25, col = "white", font = 2)
+                                     cex = 0.8, col = "white", font = 2)
                        },
                        # turn off default grid lines
                        bg.border = NA, cell.padding = c(0.01, 0, 0, 0)
@@ -212,15 +215,15 @@ for (i in 1:nrow(domain_colors)) {
 }
 
 
-# Export visual ----
+## add legend
 legend(
   x = "topleft",
-  inset = c(0.2, 0.08),
+  inset = c(0.08, 0.08),
   legend = c("Active", "In development", "On hold"),
   col = status_palette,
   pch = 16,
-  pt.cex = 0.6,
-  cex = 0.4,
+  pt.cex = 1.2,
+  cex = 0.78,
   bty = "o",          # draw box
   box.lwd = 0.2,      # thin border
   box.col = "grey55", # border color
@@ -228,10 +231,16 @@ legend(
   title.font = 2      # bold title
 )
 
-dev.copy(png, "images/library-report.png",
-         width = 5, height = 5, units = "in", res = 600)
+## close the device
 dev.off()
 
-       
+
+
+# Export visual as png  ----
+## will require adjusting font size, etc
+##dev.copy(png, "images/library-report.png",
+##         width = 5, height = 5, units = "in", res = 600)
+##dev.off()
+
 
 

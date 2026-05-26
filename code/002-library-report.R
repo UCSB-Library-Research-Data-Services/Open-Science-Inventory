@@ -129,7 +129,7 @@ pairs_reorg_service1 <- pairs_temp %>%
 
 pairs_reorg_service2 <- pairs_temp %>%
   filter(Category.2 != "OS Domains") %>%        # already in pairs_domain_graph
-  filter((Category.1 == "Instruction & Consultation" & Category.2 == "Services & Programs") ) %>% view()
+  filter((Category.1 == "Instruction & Consultation" & Category.2 == "Services & Programs") ) %>%
   mutate(Category.Temp = Category.1, Item.Temp = Item.1, Viz.ID.Temp = Viz.ID.1) %>%
   select(Category.1 = Category.2, Item.1 = Item.2, Viz.ID.1 = Viz.ID.2,
          Category.2 = Category.Temp, Item.2 = Item.Temp, Viz.ID.2 = Viz.ID.Temp)
@@ -305,7 +305,7 @@ for(i in 1:nrow(pairs_graph1)){
 pairs_graph2 <- pairs_graph %>%
   filter(Category.1 == "OS Domains")
 
-for(i in 1:nrow(pairs_graph2)){
+for(i in nrow(pairs_graph2):1){
   circos.link(sector.index1 = pairs_graph2$Category.1[i],
               point1 = c(pairs_graph2$Viz.ID.1[i] - 0.26, pairs_graph2$Viz.ID.1[i] + 0.26), 
               sector.index2 = pairs_graph2$Category.2[i],

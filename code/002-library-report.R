@@ -20,9 +20,12 @@ rm(list = ls())        # clean out environment first
 
 inventory <- read_xlsx("data_raw/OS-Inventory-list-20260518.xlsx")
 glimpse(inventory)
+## note, this version of the inventory dataset include a column called `Color`
+## it will be used to assign color to chords for the library report
 
 
-# Wrangle data | OS Domain ----
+# Wrangle data ----
+## OS Domain ----
 list_domain <- inventory
 
 for (domain in c("Data", "Method", "Source", "Access", "Review", "Education", "Infastructure")) {
@@ -51,8 +54,7 @@ pairs_domain <- list_domain %>%
 pairs_domain
 
 
-
-# Wrangle data | Provider ----
+## Provider ----
 list_provider <- inventory
 
 for (provider in c("CSD", "DREAM", "R&E", "RDS", "SRC", "T&L", "Materials")) {
@@ -78,7 +80,7 @@ pairs_provider
 
 
 
-# Wrangle data | Service ----
+## Service ----
 list_service <- inventory
 
 for (service in c("Carpentries", "Dryad", "DMPTool", "eScholarship", "LibGuide",
@@ -108,13 +110,50 @@ pairs_service
 
 
 
-# Create pairs dataset ----
-pairs <- rbind(pairs_domain, pairs_provider, pairs_service) %>%
+# Create and reorganize pairs dataset ----
+pairs_temp <- rbind(pairs_domain, pairs_provider, pairs_service) %>%
+  arrange(Viz.ID.1, Viz.ID.2)
+
+rm(pairs_domain, pairs_provider, pairs_service)
+
+
+pairs_reorg_domain <- pairs_temp %>%
+  filter(Category.2 == "OS Domains") %>%        # all OS Domains are in Category.2
+  mutate(Category.Temp = Category.1, Item.Temp = Item.1, Viz.ID.Temp = Viz.ID.1) %>%
+  select(Category.1 = Category.2, Item.1 = Item.2, Viz.ID.1 = Viz.ID.2,
+         Category.2 = Category.Temp, Item.2 = Item.Temp, Viz.ID.2 = Viz.ID.Temp)
+  
+pairs_reorg_service1 <- pairs_temp %>%
+  filter(Category.2 != "OS Domains") %>%        # already in pairs_domain_graph
+  filter(Category.1 == "Services & Programs")
+
+pairs_reorg_service2 <- pairs_temp %>%
+  filter(Category.2 != "OS Domains") %>%        # already in pairs_domain_graph
+  filter((Category.1 == "Instruction & Consultation" & Category.2 == "Services & Programs") ) %>% view()
+  mutate(Category.Temp = Category.1, Item.Temp = Item.1, Viz.ID.Temp = Viz.ID.1) %>%
+  select(Category.1 = Category.2, Item.1 = Item.2, Viz.ID.1 = Viz.ID.2,
+         Category.2 = Category.Temp, Item.2 = Item.Temp, Viz.ID.2 = Viz.ID.Temp)
+  
+pairs_reorg_instruction <- pairs_temp %>%
+  filter(Category.2 != "OS Domains") %>%        # already in pairs_domain_graph
+  filter(Category.1 == "Instruction & Consultation", Category.2 == "Provider")
+  
+pairs_reorg_engagement <- pairs_temp %>%
+  filter(Category.2 != "OS Domains") %>%        # already in pairs_domain_graph
+  filter(Category.1 == "Engagement & Community")
+
+## sanity check
+nrow(pairs_temp) == nrow(pairs_reorg_domain) + nrow(pairs_reorg_service1) + nrow(pairs_reorg_service2) +
+  nrow(pairs_reorg_instruction) + nrow(pairs_reorg_engagement)
+
+# create pairs df for graphing
+pairs <- rbind(pairs_reorg_domain, pairs_reorg_service1, pairs_reorg_service2,
+               pairs_reorg_instruction, pairs_reorg_engagement) %>%
   arrange(Viz.ID.1, Viz.ID.2)
 
 
 
-# Chord diagram | Define categories + colors ---- 
+# Define categories + colors for chord diagram ---- 
 xlim_df <- inventory %>%
   group_by(Category) %>%
   summarize(min = min(Viz.ID) - 1.6, 
@@ -122,58 +161,55 @@ xlim_df <- inventory %>%
 
 xlim_df$Category
 
-sector_colors <- c("OS Domains" = "#003660", 
-                   "Provider" = "#09847A", 
-                   "Services & Programs" = "#6D7D33", 
-                   "Instruction & Consultation" = "#C43424",
-                   "Engagement & Community" = "#FEBC11")
+sector_colors <- c("OS Domains" = "#DAE6E6", 
+                   "Provider" = "#DCD6CC", 
+                   "Services & Programs" = "#EDEADF", 
+                   "Instruction & Consultation" = "#DCE1E5",
+                   "Engagement & Community" = "#EEF0F2")
 
-status_palette <- c("#64B5F6", "#B58CD2", "#D0D2D3")
+domain_colors_light <- c("Data" = "#00366040",
+                         "Method" = "#FEBC1140",
+                         "Source" = "#047C9140",
+                         "Access" = "#09847A40",
+                         "Review" =  "#C9BF9D40",
+                         "Education" = "#6D7D3340",
+                         "Infastructure" = "#EF564540")
 
-list_coded <- inventory %>%
-  mutate(Status.Color = case_when(Status == "Active" ~ status_palette[1],
-                                  Status == "In development" ~ status_palette[2],
-                                  Status == "On hold" ~ status_palette[3],
-                                  TRUE ~ "white"),
-         Category.Color = plyr::revalue(Category, sector_colors),
-  )
+domain_colors_dark <- c("Data" = "#00366080",
+                         "Method" = "#FEBC1180",
+                         "Source" = "#047C9180",
+                         "Access" = "#09847A80",
+                         "Review" =  "#C9BF9D80",
+                         "Education" = "#6D7D3380",
+                         "Infastructure" = "#EF564580")
 
-domain_colors <- tibble(
-  OS.Viz.ID = 1:7, 
-  OS.Domain = c("Open data", "Open methodology", "Open source", "Open access",
-                "Open peer review", "Open educational resource", "Open infastructure"),
-  OS.Color = c("#4E79A770", "#9C6ADE70", "#59A14F70", "#F28E2B70", 
-               "#E1575970", "#EDC94870", "#76B7B270")
-)
+inventory_graph <- inventory %>%
+  mutate(Category.Color = plyr::revalue(Category, sector_colors),
+         Chord.Color = plyr::revalue(Color, domain_colors_light),
+         Chord.Color.Solid = plyr::revalue(Color, domain_colors_dark))
+
+pairs_graph <- pairs %>%
+  left_join(inventory_graph %>% select(Viz.ID, Chord.Color, Chord.Color.Solid), 
+            by = join_by(Viz.ID.1 == Viz.ID))
 
 
-
-# Chord diagram | Generate visual ----
+# Generate chord diagram (version 1) ----
 ## set up svg export
-svglite::svglite("images/library-report.svg", width = 13, height = 15)
+svglite::svglite("images/library-report-light.svg", width = 7, height = 10)
 
 ## initialize
 circos.clear()
-circos.par(canvas.xlim = c(-1.1, 1.1), canvas.ylim = c(-1.1, 1.1),
-           gap.after = rep(0, times = length(unique(list_coded$Category))),
+circos.par(canvas.xlim = c(-1.35, 1.35), canvas.ylim = c(-1.35, 1.35),
+           gap.after = rep(0, times = length(unique(inventory_graph$Category))),
            start.degree = -13)
 
-circos.initialize(sectors = list_coded$Category, 
+circos.initialize(sectors = inventory_graph$Category, 
                   xlim = as.matrix(xlim_df %>% select(min, max)))
 
 ## add items and label
-circos.labels(sectors = list_coded$Category, x = list_coded$Viz.ID, 
-              labels = list_coded$Item, side = "outside",
-              cex = 0.62, padding = 0.0, connection_height = mm_h(0.5))
-
-## annotate status
-circos.track(sectors = list_coded$Category, ylim = c(0, 1),
-             track.height = 0.04, cell.padding = c(0, 0, 0, 0), bg.border = NA)
-
-circos.trackPoints(sectors = list_coded$Category, 
-                   x = list_coded$Viz.ID, y = rep(0.5, times = nrow(list_coded)), 
-                   col = list_coded$Status.Color, 
-                   pch = 20, cex = 2)
+circos.labels(sectors = inventory_graph$Category, x = inventory_graph$Viz.ID, 
+              labels = inventory_graph$Item, side = "outside",
+              cex = 0.6, padding = 0.0, connection_height = mm_h(0.5))
 
 ## annotate buckets
 circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
@@ -183,13 +219,13 @@ circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
                          xlim_cell <- CELL_META$xlim
                          ylim_cell <- CELL_META$ylim
                          # draw color coding rectangles
-                         circos.rect(xlim_cell[1] + 1.2, ylim_cell[1], xlim_cell[2]-1.2, ylim_cell[2],
+                         circos.rect(xlim_cell[1] + 1.3, ylim_cell[1], xlim_cell[2]-1.3, ylim_cell[2],
                                      col = sector_colors[sector_name],
                                      border = NA)
                          # add text label
                          circos.text(mean(xlim_cell), 0.45, labels = sector_name,
                                      facing = "bending.inside", niceFacing = TRUE,
-                                     cex = 0.8, col = "white", font = 2)
+                                     cex = 0.65, col = "grey15", font = 2)
                        },
                        # turn off default grid lines
                        bg.border = NA, cell.padding = c(0.01, 0, 0, 0)
@@ -197,42 +233,89 @@ circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
 
 
 
-## add chords to where different OS domains map to
-## loop around each OS domain
-for (i in 1:nrow(domain_colors)) {
-  # filter for chord that extend from each domain
-  pairs_graph <- pairs %>%
-    filter(Viz.ID.1 == domain_colors$OS.Viz.ID[i] | Viz.ID.2 == domain_colors$OS.Viz.ID[i])
-  
-  # loop around each chord
-  for(j in 1:nrow(pairs_graph)){
-    circos.link(sector.index1 = pairs_graph$Category.1[j],
-                point1 = c(pairs_graph$Viz.ID.1[j] - 0.26, pairs_graph$Viz.ID.1[j] + 0.26), 
-                sector.index2 = pairs_graph$Category.2[j],
-                point2 = c(pairs_graph$Viz.ID.2[j] - 0.26, pairs_graph$Viz.ID.2[j] + 0.26), 
-                col = domain_colors$OS.Color[i], h.ratio = 0.5, w = 0.8)
-  }
+## loop around each item to add chord connections
+for(i in nrow(pairs_graph):1){
+  circos.link(sector.index1 = pairs_graph$Category.1[i],
+              point1 = c(pairs_graph$Viz.ID.1[i] - 0.26, pairs_graph$Viz.ID.1[i] + 0.26), 
+              sector.index2 = pairs_graph$Category.2[i],
+              point2 = c(pairs_graph$Viz.ID.2[i] - 0.26, pairs_graph$Viz.ID.2[i] + 0.26), 
+              col = pairs_graph$Chord.Color[i], h.ratio = 0.5, w = 0.8)
 }
 
 
-## add legend
-legend(
-  x = "topleft",
-  inset = c(0.08, 0.08),
-  legend = c("Active", "In development", "On hold"),
-  col = status_palette,
-  pch = 16,
-  pt.cex = 1.2,
-  cex = 0.78,
-  bty = "o",          # draw box
-  box.lwd = 0.2,      # thin border
-  box.col = "grey55", # border color
-  title = "Status",
-  title.font = 2      # bold title
+## close the device
+dev.off()
+
+
+
+# Generate chord diagram (version 2) ----
+## version 2 uses gray as background
+## set up svg export
+svglite::svglite("images/library-report-gray.svg", width = 7, height = 10)
+
+## initialize
+circos.clear()
+circos.par(canvas.xlim = c(-1.35, 1.35), canvas.ylim = c(-1.35, 1.35),
+           gap.after = rep(0, times = length(unique(inventory_graph$Category))),
+           start.degree = -13)
+
+circos.initialize(sectors = inventory_graph$Category, 
+                  xlim = as.matrix(xlim_df %>% select(min, max)))
+
+## add items and label
+circos.labels(sectors = inventory_graph$Category, x = inventory_graph$Viz.ID, 
+              labels = inventory_graph$Item, side = "outside",
+              cex = 0.6, padding = 0.0, connection_height = mm_h(0.5))
+
+## annotate buckets
+circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
+                       panel.fun = function(x, y) {
+                         # obtain cell meta data
+                         sector_name <- get.cell.meta.data("sector.index")
+                         xlim_cell <- CELL_META$xlim
+                         ylim_cell <- CELL_META$ylim
+                         # draw color coding rectangles
+                         circos.rect(xlim_cell[1] + 1.3, ylim_cell[1], xlim_cell[2]-1.3, ylim_cell[2],
+                                     col = sector_colors[sector_name],
+                                     border = NA)
+                         # add text label
+                         circos.text(mean(xlim_cell), 0.45, labels = sector_name,
+                                     facing = "bending.inside", niceFacing = TRUE,
+                                     cex = 0.65, col = "grey15", font = 2)
+                       },
+                       # turn off default grid lines
+                       bg.border = NA, cell.padding = c(0.01, 0, 0, 0)
 )
+
+
+
+## loop around each item to add chord connections
+pairs_graph1 <- pairs_graph %>%
+  filter(Category.1 != "OS Domains")
+
+for(i in 1:nrow(pairs_graph1)){
+  circos.link(sector.index1 = pairs_graph1$Category.1[i],
+              point1 = c(pairs_graph1$Viz.ID.1[i] - 0.26, pairs_graph1$Viz.ID.1[i] + 0.26), 
+              sector.index2 = pairs_graph1$Category.2[i],
+              point2 = c(pairs_graph1$Viz.ID.2[i] - 0.26, pairs_graph1$Viz.ID.2[i] + 0.26), 
+              col = "#80808040", h.ratio = 0.5, w = 0.8)
+}
+
+
+pairs_graph2 <- pairs_graph %>%
+  filter(Category.1 == "OS Domains")
+
+for(i in 1:nrow(pairs_graph2)){
+  circos.link(sector.index1 = pairs_graph2$Category.1[i],
+              point1 = c(pairs_graph2$Viz.ID.1[i] - 0.26, pairs_graph2$Viz.ID.1[i] + 0.26), 
+              sector.index2 = pairs_graph2$Category.2[i],
+              point2 = c(pairs_graph2$Viz.ID.2[i] - 0.26, pairs_graph2$Viz.ID.2[i] + 0.26), 
+              col = pairs_graph$Chord.Color.Solid[i], h.ratio = 0.5, w = 0.8)
+}
 
 ## close the device
 dev.off()
+
 
 
 

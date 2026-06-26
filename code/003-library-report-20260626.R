@@ -161,47 +161,27 @@ xlim_df <- inventory %>%
 
 xlim_df$Category
 
-sector_colors <- c("OS Domains" = "#DAE6E6", 
-                   "Provider" = "#DCD6CC", 
-                   "Services & Programs" = "#EDEADF", 
-                   "Instruction & Consultation" = "#DCE1E5",
-                   "Engagement & Community" = "#EEF0F2")
+sector_colors <- c("OS Domains" = "#09847A", 
+                   "Provider" = "#003660", 
+                   "Services & Programs" = "#6D7D33", 
+                   "Instruction & Consultation" = "#C43424",
+                   "Engagement & Community" = "#FEBC11")
 
-domain_colors_light <- c("Data" = "#00366040",
-                         "Method" = "#FEBC1140",
-                         "Source" = "#047C9140",
-                         "Access" = "#09847A40",
-                         "Review" =  "#C9BF9D40",
-                         "Education" = "#6D7D3340",
-                         "Infastructure" = "#EF564540")
-
-domain_colors_dark <- c("Data" = "#00366080",
-                         "Method" = "#FEBC1180",
-                         "Source" = "#047C9180",
-                         "Access" = "#09847A80",
-                         "Review" =  "#C9BF9D80",
-                         "Education" = "#6D7D3380",
-                         "Infastructure" = "#EF564580")
 
 inventory_graph <- inventory %>%
-  mutate(Category.Color = plyr::revalue(Category, sector_colors),
-         Chord.Color = plyr::revalue(Color, domain_colors_light),
-         Chord.Color.Solid = plyr::revalue(Color, domain_colors_dark))
+  mutate(Category.Color = plyr::revalue(Category, sector_colors))
 
-pairs_graph <- pairs %>%
-  left_join(inventory_graph %>% select(Viz.ID, Chord.Color, Chord.Color.Solid), 
-            by = join_by(Viz.ID.1 == Viz.ID))
 
 
 # Generate chord diagram (version 1) ----
 ## set up svg export
-svglite::svglite("images/library-report-light.svg", width = 7, height = 10)
+svglite::svglite("images/library-report-rds-highlight-20260626.svg", width = 7, height = 10)
 
 ## initialize
 circos.clear()
 circos.par(canvas.xlim = c(-1.35, 1.35), canvas.ylim = c(-1.35, 1.35),
            gap.after = rep(0, times = length(unique(inventory_graph$Category))),
-           start.degree = -13)
+           start.degree = -36)
 
 circos.initialize(sectors = inventory_graph$Category, 
                   xlim = as.matrix(xlim_df %>% select(min, max)))
@@ -209,10 +189,10 @@ circos.initialize(sectors = inventory_graph$Category,
 ## add items and label
 circos.labels(sectors = inventory_graph$Category, x = inventory_graph$Viz.ID, 
               labels = inventory_graph$Item, side = "outside",
-              cex = 0.6, padding = 0.0, connection_height = mm_h(0.5))
+              cex = 0.45, padding = 0.0, connection_height = mm_h(0.5))
 
 ## annotate buckets
-circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
+circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.09,
                        panel.fun = function(x, y) {
                          # obtain cell meta data
                          sector_name <- get.cell.meta.data("sector.index")
@@ -223,9 +203,9 @@ circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
                                      col = sector_colors[sector_name],
                                      border = NA)
                          # add text label
-                         circos.text(mean(xlim_cell), 0.45, labels = sector_name,
+                         circos.text(mean(xlim_cell), 0.5, labels = sector_name,
                                      facing = "bending.inside", niceFacing = TRUE,
-                                     cex = 0.65, col = "grey15", font = 2)
+                                     cex = 0.55, col = "white", font = 2)
                        },
                        # turn off default grid lines
                        bg.border = NA, cell.padding = c(0.01, 0, 0, 0)
@@ -233,97 +213,29 @@ circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
 
 
 
-## loop around each item to add chord connections
-for(i in nrow(pairs_graph):1){
-  circos.link(sector.index1 = pairs_graph$Category.1[i],
-              point1 = c(pairs_graph$Viz.ID.1[i] - 0.26, pairs_graph$Viz.ID.1[i] + 0.26), 
-              sector.index2 = pairs_graph$Category.2[i],
-              point2 = c(pairs_graph$Viz.ID.2[i] - 0.26, pairs_graph$Viz.ID.2[i] + 0.26), 
-              col = pairs_graph$Chord.Color[i], h.ratio = 0.5, w = 0.8)
+## loop around each item to add grey chord connections
+for(i in nrow(pairs):1){
+  circos.link(sector.index1 = pairs$Category.1[i],
+              point1 = c(pairs$Viz.ID.1[i] - 0.26, pairs$Viz.ID.1[i] + 0.26), 
+              sector.index2 = pairs$Category.2[i],
+              point2 = c(pairs$Viz.ID.2[i] - 0.26, pairs$Viz.ID.2[i] + 0.26), 
+              col = "#BFBFBF30", h.ratio = 0.5, w = 0.8)
+}
+
+
+## add RDS cord
+pairs_rds <- pairs %>% filter(Item.1 == "RDS" | Item.2 == "RDS")
+
+for(i in nrow(pairs_rds):1){
+  circos.link(sector.index1 = pairs_rds$Category.1[i],
+              point1 = c(pairs_rds$Viz.ID.1[i] - 0.26, pairs_rds$Viz.ID.1[i] + 0.26), 
+              sector.index2 = pairs_rds$Category.2[i],
+              point2 = c(pairs_rds$Viz.ID.2[i] - 0.26, pairs_rds$Viz.ID.2[i] + 0.26), 
+              col = sector_colors["Provider"], h.ratio = 0.5, w = 0.8)
 }
 
 
 ## close the device
 dev.off()
-
-
-
-# Generate chord diagram (version 2) ----
-## version 2 uses gray as background
-## set up svg export
-svglite::svglite("images/library-report-gray.svg", width = 7, height = 10)
-
-## initialize
-circos.clear()
-circos.par(canvas.xlim = c(-1.35, 1.35), canvas.ylim = c(-1.35, 1.35),
-           gap.after = rep(0, times = length(unique(inventory_graph$Category))),
-           start.degree = -13)
-
-circos.initialize(sectors = inventory_graph$Category, 
-                  xlim = as.matrix(xlim_df %>% select(min, max)))
-
-## add items and label
-circos.labels(sectors = inventory_graph$Category, x = inventory_graph$Viz.ID, 
-              labels = inventory_graph$Item, side = "outside",
-              cex = 0.6, padding = 0.0, connection_height = mm_h(0.5))
-
-## annotate buckets
-circos.trackPlotRegion(ylim = c(0, 1), track.height = 0.06,
-                       panel.fun = function(x, y) {
-                         # obtain cell meta data
-                         sector_name <- get.cell.meta.data("sector.index")
-                         xlim_cell <- CELL_META$xlim
-                         ylim_cell <- CELL_META$ylim
-                         # draw color coding rectangles
-                         circos.rect(xlim_cell[1] + 1.3, ylim_cell[1], xlim_cell[2]-1.3, ylim_cell[2],
-                                     col = sector_colors[sector_name],
-                                     border = NA)
-                         # add text label
-                         circos.text(mean(xlim_cell), 0.45, labels = sector_name,
-                                     facing = "bending.inside", niceFacing = TRUE,
-                                     cex = 0.65, col = "grey15", font = 2)
-                       },
-                       # turn off default grid lines
-                       bg.border = NA, cell.padding = c(0.01, 0, 0, 0)
-)
-
-
-
-## loop around each item to add chord connections
-pairs_graph1 <- pairs_graph %>%
-  filter(Category.1 != "OS Domains")
-
-for(i in 1:nrow(pairs_graph1)){
-  circos.link(sector.index1 = pairs_graph1$Category.1[i],
-              point1 = c(pairs_graph1$Viz.ID.1[i] - 0.26, pairs_graph1$Viz.ID.1[i] + 0.26), 
-              sector.index2 = pairs_graph1$Category.2[i],
-              point2 = c(pairs_graph1$Viz.ID.2[i] - 0.26, pairs_graph1$Viz.ID.2[i] + 0.26), 
-              col = "#80808040", h.ratio = 0.5, w = 0.8)
-}
-
-
-pairs_graph2 <- pairs_graph %>%
-  filter(Category.1 == "OS Domains")
-
-for(i in nrow(pairs_graph2):1){
-  circos.link(sector.index1 = pairs_graph2$Category.1[i],
-              point1 = c(pairs_graph2$Viz.ID.1[i] - 0.26, pairs_graph2$Viz.ID.1[i] + 0.26), 
-              sector.index2 = pairs_graph2$Category.2[i],
-              point2 = c(pairs_graph2$Viz.ID.2[i] - 0.26, pairs_graph2$Viz.ID.2[i] + 0.26), 
-              col = pairs_graph$Chord.Color.Solid[i], h.ratio = 0.5, w = 0.8)
-}
-
-## close the device
-dev.off()
-
-
-
-
-# Export visual as png  ----
-## will require adjusting font size, etc
-##dev.copy(png, "images/library-report.png",
-##         width = 5, height = 5, units = "in", res = 600)
-##dev.off()
-
 
 
